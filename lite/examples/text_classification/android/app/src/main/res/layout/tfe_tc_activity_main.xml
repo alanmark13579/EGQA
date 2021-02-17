@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="@dimen/tfe_tc_activity_margin"
-    tools:context=".MainActivity">
+    tools:context=".EGQA.MainActivity">
 
   <ScrollView
       android:id="@+id/scroll_view"

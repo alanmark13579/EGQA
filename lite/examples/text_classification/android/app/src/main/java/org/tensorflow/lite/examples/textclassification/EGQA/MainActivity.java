@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.tensorflow.lite.examples.textclassification;
+package org.tensorflow.lite.examples.textclassification.EGQA;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +26,8 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import java.util.List;
+
+import org.tensorflow.lite.examples.textclassification.R;
 import org.tensorflow.lite.examples.textclassification.client.Result;
 import org.tensorflow.lite.examples.textclassification.client.TextClassificationClient;
 
@@ -45,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.tfe_tc_activity_main);
     Log.v(TAG, "onCreate");
+  //  Double[] Accuracy = {0.6277288};
+  // Log.d(getClass().getName(),Accuracy[0].toString());
+
 
     client = new TextClassificationClient(getApplicationContext());
     handler = new Handler();
