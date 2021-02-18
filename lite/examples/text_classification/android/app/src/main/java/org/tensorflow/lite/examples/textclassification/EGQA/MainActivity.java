@@ -18,103 +18,128 @@ package org.tensorflow.lite.examples.textclassification.EGQA;
 
 import android.os.Bundle;
 import android.os.Handler;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
 import java.util.List;
 
 import org.tensorflow.lite.examples.textclassification.R;
 import org.tensorflow.lite.examples.textclassification.client.Result;
 import org.tensorflow.lite.examples.textclassification.client.TextClassificationClient;
 
-/** The main activity to provide interactions with users. */
+import org.tensorflow.lite.examples.textclassification.databinding.ActivityBinding;
+import org.tensorflow.lite.examples.textclassification.EGQA.DataBase.MyData;
+
+/**
+ * The main activity to provide interactions with users.
+ */
 public class MainActivity extends AppCompatActivity {
-  private static final String TAG = "TextClassificationDemo";
+    private static final String TAG = "TextClassificationDemo";
 
-  private TextClassificationClient client;
+    private TextClassificationClient client;
 
-  private TextView resultTextView;
-  private EditText inputEditText;
-  private Handler handler;
-  private ScrollView scrollView;
+    private TextView resultTextView;
+    private EditText inputEditText;
+    private Handler handler;
+    private ScrollView scrollView;
+    private ActivityBinding binding;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.tfe_tc_activity_main);
-    Log.v(TAG, "onCreate");
-  //  Double[] Accuracy = {0.6277288};
-  // Log.d(getClass().getName(),Accuracy[0].toString());
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity);
+        Log.v(TAG, "onCreate");
 
 
-    client = new TextClassificationClient(getApplicationContext());
-    handler = new Handler();
-    Button classifyButton = findViewById(R.id.button);
-    classifyButton.setOnClickListener(
-        (View v) -> {
-          classify(inputEditText.getText().toString());
-        });
-    resultTextView = findViewById(R.id.result_text_view);
-    inputEditText = findViewById(R.id.input_text);
-    scrollView = findViewById(R.id.scroll_view);
-  }
+        binding = ActivityBinding.inflate(getLayoutInflater());
+        View view = binding.getRoot();
+        setContentView(view);
 
-  @Override
-  protected void onStart() {
-    super.onStart();
-    Log.v(TAG, "onStart");
-    handler.post(
-        () -> {
-          client.load();
-        });
-  }
+        client = new TextClassificationClient(getApplicationContext());
+        handler = new Handler();
+        Button classifyButton = binding.button;
+        classifyButton.setOnClickListener(
+                (View v) -> {
+                    classify(inputEditText.getText().toString());
+                });
+        resultTextView = binding.resultTextView;
+        inputEditText = binding.inputText;
+        scrollView = binding.scrollView;
+    }
 
-  @Override
-  protected void onStop() {
-    super.onStop();
-    Log.v(TAG, "onStop");
-    handler.post(
-        () -> {
-          client.unload();
-        });
-  }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.v(TAG, "onStart");
+        handler.post(
+                () -> {
+                    client.load();
+                });
+    }
 
-  /** Send input text to TextClassificationClient and get the classify messages. */
-  private void classify(final String text) {
-    handler.post(
-        () -> {
-          // Run text classification with TF Lite.
-          List<Result> results = client.classify(text);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.v(TAG, "onStop");
+        handler.post(
+                () -> {
+                    client.unload();
+                });
+    }
 
-          // Show classification result on screen
-          showResult(text, results);
-        });
-  }
+    //classify for sentence mood ;
+    private void classify(final String text) {
+        handler.post(
+                () -> {
+                    List<Result> results = client.classify(text);
+                    showResult(text, results);
+                });
+    }
 
-  /** Show classification result on the screen. */
-  private void showResult(final String inputText, final List<Result> results) {
-    // Run on UI thread as we'll updating our app UI
-    runOnUiThread(
-        () -> {
-          String textToShow = "Input: " + inputText + "\nOutput:\n";
-          for (int i = 0; i < results.size(); i++) {
-            Result result = results.get(i);
-            textToShow += String.format("    %s: %s\n", result.getTitle(), result.getConfidence());
-          }
-          textToShow += "---------\n";
+    //setting text to UI
+    private void showResult(final String inputText, final List<Result> results) {
+        runOnUiThread(
+                () -> {
+                    String textToShow = "Input: " + inputText + "\nOutput:\n";
+                    Result Positive = results.get(0);
+                    Result Negative = results.get(1);
+                    textToShow += String.format("%s  \n %s\n", Positive.getConfidence(), Negative.getConfidence());
+                    String SentenceClass = searchClass(Positive.getConfidence(), Negative.getConfidence());
+                    textToShow += SentenceClass + "\n---------\n";
+                    resultTextView.append(textToShow);
+                    inputEditText.getText().clear();
+                    scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+                });
+    }
 
-          // Append the result to the UI.
-          resultTextView.append(textToShow);
-
-          // Clear the input text.
-          inputEditText.getText().clear();
-
-          // Scroll to the bottom to show latest entry's classification result.
-          scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
-        });
-  }
+    //Find Ai database for question
+    private String searchClass(final double Pos, final double Neg) {
+        MyData data = new MyData();
+        String Label[] = data.Labelgetter();
+        Double Negative[] = data.Negativegetter();
+        Double Positive[] = data.Positivegetter();
+        int FindMood = 0;
+        double FindMinGap = 10;
+        for (int i = 0; i < 1482; i++) {
+            double PosAbs = Math.abs(Pos - Positive[i]);
+            double NegAbs = Math.abs(Neg - Negative[i]);
+            if (FindMinGap > (PosAbs + NegAbs)) {
+                FindMinGap = (PosAbs + NegAbs);
+                FindMood = i;
+                Log.d("FindMood", " " + FindMood);
+            }
+            if (FindMood > 196) {
+                FindMood = 195;
+                i = 1482;
+            }
+        }
+        return Label[FindMood];
+    }
 }

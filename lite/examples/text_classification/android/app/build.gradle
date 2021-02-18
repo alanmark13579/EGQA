@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     buildToolsVersion "29.0.0"
+    buildFeatures {
+        viewBinding = true
+    }
     defaultConfig {
         applicationId "org.tensorflow.lite.examples.textclassification"
         minSdkVersion 21
