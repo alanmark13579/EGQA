@@ -16,11 +16,13 @@
 
 package org.tensorflow.lite.examples.textclassification.EGQA;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.speech.RecognizerIntent;
@@ -121,8 +123,9 @@ public class MainActivity extends AppCompatActivity {
                     String SentenceClass = searchClass(Positive.getConfidence(), Negative.getConfidence());
                     textToShow += SentenceClass + "\n---------\n";
                     resultTextView.append(textToShow);
-                    inputEditText.getText().clear();
+
                     scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+                    alertDialog(SentenceClass) ;
                 });
     }
 
@@ -166,8 +169,28 @@ public class MainActivity extends AppCompatActivity {
                     RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
             Toast.makeText(this,spokenText,Toast.LENGTH_SHORT).show();
-            
+            spokenText = spokenText.toUpperCase().charAt(0) + spokenText.substring(1)+".";
             classify( spokenText);
         }
+    }
+    private void alertDialog(String Sentence)
+    {
+        AlertDialog.Builder alertDialog =
+                new AlertDialog.Builder(MainActivity.this);
+        alertDialog.setTitle("回答評價");
+        if(Sentence.equals("Q1"))
+            alertDialog.setMessage("太棒了!!但是答案可不只一種喔，可以再多試試");
+        else if(Sentence.equals("T1"))
+            alertDialog.setMessage("意思相反了，請再試一次");
+        else
+            alertDialog.setMessage("與題意完全不相符喔，請再試一次");
+
+        alertDialog.setPositiveButton("確定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            }
+        });
+        alertDialog.setCancelable(false);
+        alertDialog.show();
     }
 }

@@ -12,8 +12,10 @@
       android:id="@+id/scroll_view"
       android:layout_width="match_parent"
       android:layout_height="0dp"
+      app:layout_constraintBottom_toTopOf="@+id/input_text"
       app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintBottom_toTopOf="@+id/input_text">
+      app:layout_constraintVertical_bias="0.0"
+      tools:layout_editor_absoluteX="-16dp">
 
     <TextView
         android:id="@+id/result_text_view"
@@ -41,5 +43,14 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toEndOf="@+id/input_text"
       />
+
+  <ImageView
+      android:id="@+id/imageView3"
+      android:layout_width="358dp"
+      android:layout_height="535dp"
+      android:layout_marginTop="49dp"
+      app:layout_constraintBottom_toBottomOf="@+id/scroll_view"
+      app:layout_constraintStart_toStartOf="@+id/scroll_view"
+      app:srcCompat="@drawable/qa" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
